@@ -1,6 +1,4 @@
 ---
-dependencies: []
-
 galaxy_info:
   author: Norman Leutner
   description: New Relic PHP Agent role / Application monitoring for RHEL/CentOS, Ubuntu, Debian
@@ -22,4 +20,5 @@ galaxy_info:
         - wheezy
   categories:
     - monitoring
-
+dependencies:
+  - role: blackstar257.newrelic
