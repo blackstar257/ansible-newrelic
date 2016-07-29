@@ -4,8 +4,9 @@ RUN apt-get update
 # Install Ansible
 RUN apt-get install -y software-properties-common python-software-properties git
 RUN apt-add-repository -y ppa:ansible/ansible
+RUN add-apt-repository ppa:ondrej/php
 RUN apt-get update
-RUN apt-get install -y ansible php5
+RUN apt-get install -y ansible php7.0
 
 # Install Ansible inventory file
 RUN echo "[local]\nlocalhost ansible_connection=local" > /etc/ansible/hosts
