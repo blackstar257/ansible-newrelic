@@ -2,7 +2,7 @@
 #
 # Variables used by newrelic.ini.j2 template
 #
-
+newrelic_config_path: "/etc/php.d"
 # If you use a full path to the extension you insulate yourself from the
 # extension directory changing if you change PHP installations or versions.
 # If you do not use an absolute path then the file must be installed in the
@@ -595,5 +595,3 @@ newrelic_agent_labels: false
 #          https://docs.newrelic.com/docs/synthetics/new-relic-synthetics/getting-started/new-relic-synthetics
 #
 newrelic_agent_synthetics_enabled: true
-
-
