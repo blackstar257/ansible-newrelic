@@ -1,9 +1,9 @@
 ---
-- name: RedHat | Set newrelic_loaded_os_family
+- name: set newrelic_loaded_os_family
   set_fact:
     newrelic_loaded_os_family: "{{ ansible_os_family }}"
 
-- name: RedHat | Install New Relic PHP Agent
+- name: install new relic php agent
   yum:
-    name: newrelic-php5
+    name: "{{ newrelic_php_package }}"
     state: latest

@@ -151,7 +151,6 @@ newrelic_agent_daemon_loglevel: info
 #          to use if you are using a chroot environment.
 newrelic_agent_daemon_port: "/tmp/.newrelic.sock"
 
-
 # Setting: newrelic.daemon.ssl
 # Type   : boolean
 # Scope  : system
@@ -221,7 +220,6 @@ newrelic_agent_daemon_pidfile: false
 #          file system, the default daemon location is
 #          /opt/newrelic/bin/newrelic-daemon.
 newrelic_agent_daemon_location: "/usr/bin/newrelic-daemon"
-
 
 # Setting: newrelic.daemon.collector_host
 # Type   : string
@@ -481,7 +479,6 @@ newrelic_agent_transaction_events_attributes_enabled: true
 newrelic_agent_transaction_tracer_attributes_enabled: true
 newrelic_agent_error_collector_attributes_enabled: true
 newrelic_agent_browser_monitoring_attributes_enabled: false
-
 
 # Setting: newrelic.attributes.include
 #          newrelic.attributes.exclude

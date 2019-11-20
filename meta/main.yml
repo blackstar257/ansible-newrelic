@@ -1,24 +1,26 @@
 ---
+dependencies:
+  - blackstar257.newrelic
+
 galaxy_info:
-  author: Norman Leutner
+  role_name: newrelic-php
+  author: blackstar257
   description: New Relic PHP Agent role / Application monitoring for RHEL/CentOS, Ubuntu, Debian
-  company: "all2e GmbH"
-  license: "license (BSD, MIT)"
-  min_ansible_version: 1.4
+  company: None
+  license: BSD
+  min_ansible_version: 2.4
   platforms:
     - name: EL
       versions:
-        - 5
-        - 6
+        - all
     - name: Ubuntu
       versions:
         - all
     - name: Debian
       versions:
-        - lenny
-        - squeeze
-        - wheezy
-  categories:
+        - all
+  galaxy_tags:
     - monitoring
-dependencies:
-  - role: blackstar257.newrelic
+    - newrelic
+    - php
+    - apm
