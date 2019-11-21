@@ -1,7 +1,7 @@
 # Ansible Role: New Relic PHP Agent
 
-[![Ansible Role](https://img.shields.io/badge/role-blackstar257.newrelic--php-blue.svg)](https://galaxy.ansible.com/blackstar257/newrelic-php/)
-[![Build Status](https://travis-ci.org/blackstar257/ansible-newrelic-php.svg?branch=master)](https://travis-ci.org/blackstar257/ansible-newrelic-php)
+[![Ansible Role](https://img.shields.io/badge/role-blackstar257.newrelic-blue.svg)](https://galaxy.ansible.com/blackstar257/newrelic/)
+[![Build Status](https://travis-ci.org/blackstar257/ansible-newrelic.svg?branch=master)](https://travis-ci.org/blackstar257/ansible-newrelic)
 
 This ansible role installs and configures the New Relic PHP Agent on RHEL/CentOS, Debian & Ubuntu based systems.
 
@@ -104,7 +104,7 @@ Configure NewRelic agent with defaults.
 - hosts: all
   roles:
     - {
-        role: blackstar257.newrelic-php,
+        role: blackstar257.newrelic,
         newrelic_license_key: 0123456789012345678901234567890123456789,
       }
 ```
