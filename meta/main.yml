@@ -1,6 +1,5 @@
 ---
-dependencies:
-  - blackstar257.newrelic
+dependencies: []
 
 galaxy_info:
   role_name: newrelic-php

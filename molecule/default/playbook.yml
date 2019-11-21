@@ -2,6 +2,12 @@
 - name: Converge
   hosts: all
   become: true
-
+  vars:
+    newrelic_license_key: ab2fa361cd4d0d373833cad619d7bcc424d27c16
+  pre_tasks:
+    - name: preinstall depedency on php
+      package:
+        name: php
+        state: present
   roles:
     - role: blackstar257.newrelic-php

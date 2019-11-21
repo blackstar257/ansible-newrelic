@@ -2,7 +2,7 @@
 - name: check for newrelic_license_key
   fail:
     msg: "newrelic_license_key has not been defined"
-  when: newrelic_license_key|default(False) == False
+  when: not newrelic_license_key|default(False)
 
 - include: debian.yml
   when: ansible_os_family == 'Debian'
@@ -11,25 +11,20 @@
   when: ansible_os_family == 'RedHat'
 
 - include: default.yml
-  when: newrelic_loaded_os_family|default(False) == False
-
-- name: new relic agent silent install
-  command: newrelic-install install
-  environment:
-    NR_INSTALL_SILENT: true
+  when: not newrelic_loaded_os_family|default(False)
 
 - name: configure newrelic agent
   template:
     src: newrelic.ini.j2
     dest: "{{ newrelic_config_path }}/newrelic.ini"
-    group: newrelic
+    group: root
     owner: root
     mode: 0644
   notify: restart newrelic
-  when: newrelic_loaded_os_family|default(False) != False
+  when: newrelic_loaded_os_family|default(False)
 
 - name: ensure new relic agent is started and enabled
   service:
     name: newrelic-daemon
     state: started
-    enabled: yes
+    enabled: true

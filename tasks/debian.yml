@@ -11,19 +11,14 @@
 
 - name: add new relic repo
   apt_repository:
-    repo: "{{ newrelic_php_repo }}"
+    repo: "{{ newrelic_php_deb_repo }}"
     state: present
     filename: newrelic
   register: newrelic_repo
 
-- name: apt-get update
-  apt:
-    update_cache: yes
-  when: newrelic_repo.changed
-
 - name: install newrelic php agent
   apt:
     pkg: "{{ newrelic_php_package }}"
-    update_cache: yes
+    update_cache: true
     cache_valid_time: 86400
-    state: latest
+    state: present

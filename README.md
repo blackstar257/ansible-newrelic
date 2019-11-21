@@ -73,7 +73,7 @@ This role requires Ansible 2.4 or higher.
 
 ## Dependencies
 
-blackstar257.newrelic
+None
 
 ## Example Playbook
 
