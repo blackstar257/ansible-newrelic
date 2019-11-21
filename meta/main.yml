@@ -11,13 +11,8 @@ galaxy_info:
   platforms:
     - name: EL
       versions:
-        - all
-    - name: Ubuntu
-      versions:
-        - all
-    - name: Debian
-      versions:
-        - all
+        - 6
+        - 7
   galaxy_tags:
     - monitoring
     - newrelic

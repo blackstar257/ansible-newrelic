@@ -20,11 +20,21 @@
     group: root
     owner: root
     mode: 0644
+  when: newrelic_loaded_os_family|default(False)
+
+- name: configure newrelic daemon
+  template:
+    src: newrelic.cfg.j2
+    dest: /etc/newrelic/newrelic.cfg
+    group: root
+    owner: root
+    mode: 0644
   notify: restart newrelic
   when: newrelic_loaded_os_family|default(False)
 
-- name: ensure new relic agent is started and enabled
+- name: ensure new relic daemon is started and enabled
   service:
     name: newrelic-daemon
     state: started
     enabled: true
+  when: newrelic_agent_daemon_dont_launch == 3

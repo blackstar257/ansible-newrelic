@@ -3,3 +3,4 @@
   service:
     name: newrelic-daemon
     state: restarted
+  when: newrelic_agent_daemon_dont_launch == 3

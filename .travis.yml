@@ -8,8 +8,6 @@ env:
   matrix:
     - MOLECULE_DISTRO: centos7
     - MOLECULE_DISTRO: centos6
-    - MOLECULE_DISTRO: debian8
-    - MOLECULE_DISTRO: debian9
 
 install:
   - pip install molecule docker
