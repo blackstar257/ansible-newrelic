@@ -2,7 +2,7 @@
 dependencies: []
 
 galaxy_info:
-  role_name: newrelic-php
+  name: newrelic-php
   author: blackstar257
   description: New Relic PHP Agent role / Application monitoring for RHEL/CentOS, Ubuntu, Debian
   company: None
