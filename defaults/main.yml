@@ -1,8 +1,6 @@
 ---
-#
-# Variables used by newrelic.ini.j2 template
-#
 newrelic_config_path: "/etc/php.d"
+
 # If you use a full path to the extension you insulate yourself from the
 # extension directory changing if you change PHP installations or versions.
 # If you do not use an absolute path then the file must be installed in the
@@ -19,7 +17,7 @@ newrelic_agent_extension: "newrelic.so"
 #          agent will not initialize at all. However, you can selectively
 #          disable the agent on a per-directory basis.
 #
-newrelic_agent_enabled: "true"
+newrelic_agent_enabled: true
 
 # Setting: newrelic.license
 # Type   : string
@@ -44,13 +42,15 @@ newrelic_agent_enabled: "true"
 #          urge you to remove /etc/newrelic/upgrade_please.key in order to
 #          eliminate the potential for confusion about exactly where the key
 #          is coming from.
-newrelic_license_key: false
+#
+newrelic_license_key: "REPLACE_WITH_REAL_KEY"
 
 # Setting: newrelic.logfile
 # Type   : string
 # Scope  : system
 # Default: none
 # Info   : Sets the name of the file to send log messages to.
+#
 newrelic_agent_logfile: "/var/log/newrelic/php_agent.log"
 
 # Setting: newrelic.loglevel
@@ -62,18 +62,15 @@ newrelic_agent_logfile: "/var/log/newrelic/php_agent.log"
 #          the guidance of technical support.
 #          Must be one of the following values:
 #            always, error, warning, info, verbose, debug, verbosedebug
-newrelic_agent_loglevel: info
+#
+newrelic_agent_loglevel: "info"
 
 # Setting: newrelic.high_security
 # Type   : boolean
 # Scope  : system
 # Default: false
-# Info   : Enables high security for all applications.  When high security is
+# Info   : Enables high security for all applications. When high security is
 #          enabled, the following behavior will take effect:
-#          * Data will not be sent to New Relic unless the newrelic-daemon
-#            is using SSL.  If the PHP process spawns a newrelic-daemon, it
-#            will be configured to use SSL regardless of the value of
-#            ```newrelic.daemon.ssl```.
 #          * Raw SQL strings will never be gathered, regardless of the value of
 #            newrelic.transaction_tracer.record_sql.
 #          * Request parameters will never be captured, regardless of the
@@ -82,10 +79,16 @@ newrelic_agent_loglevel: info
 #            false:
 #            newrelic_add_custom_parameter
 #            newrelic_set_user_attributes
+#            newrelic_record_custom_event
 #
 #          IMPORTANT:  If you change this setting, you must also change the RPM
-#          UI security setting.  If the two settings do not match, then no data
+#          UI security setting. If the two settings do not match, then no data
 #          will be collected.
+#
+#          IMPORTANT: This setting is not compatible with
+#          newrelic.security_policies_token. Only one may be set. If both are
+#          set an error will be thrown and the agent will not connect.
+#
 newrelic_agent_high_security: false
 
 # Setting: newrelic.appname
@@ -97,8 +100,19 @@ newrelic_agent_high_security: false
 #          which must be separated by a semi-colon. The first name in any such
 #          list is considered the 'primary' application name and must be unique
 #          for each account / license key.
+#
 newrelic_agent_appname: "PHP Application"
 
+# Setting: newrelic.process_host.display_name
+# Type   : string
+# Scope  : system
+# Default: none
+# Info   : Sets a custom display name for your application server in the New
+#          Relic UI. Servers are normally identified by host and port number.
+#          This setting allows you to give your hosts more recognizable names.
+#
+newrelic_agent_process_host_display_name: ""
+#
 # Beginning with version 3.0 of the agent, the daemon can be automatically
 # started by the agent. There is no need to start the daemon before starting
 # Apache or PHP-FPM. All of the newrelic.daemon.* settings are options that
@@ -119,12 +133,14 @@ newrelic_agent_appname: "PHP Application"
 #
 # Also please note that the options here and in newrelic.cfg are identical,
 # except that in this file they are preceded with "newrelic.daemon.".
+#
 
 # Setting: newrelic.daemon.logfile
 # Type   : string
 # Scope  : system
 # Default: none
 # Info   : Sets the name of the file to send daemon log messages to.
+#
 newrelic_agent_daemon_logfile: "/var/log/newrelic/newrelic-daemon.log"
 
 # Setting: newrelic.daemon.loglevel
@@ -135,57 +151,69 @@ newrelic_agent_daemon_logfile: "/var/log/newrelic/newrelic-daemon.log"
 #          rarely need to change this from the default, and usually only under
 #          the guidance of technical support.
 #          Must be one of the following values:
-#            always, error, warning, info, verbose, debug, verbosedebug
-newrelic_agent_daemon_loglevel: info
+#            always, error, warning, info, debug
+#
+#          The values verbose and verbosedebug are deprecated aliases for debug.
+#
+newrelic_agent_daemon_loglevel: "info"
 
-# Setting: newrelic.daemon.port
+# Setting: newrelic.daemon.address (alias: newrelic.daemon.port)
 # Type   : string or integer
 # Scope  : system
 # Default: /tmp/.newrelic.sock
 # Info   : Sets how the agent and daemon communicate. How this is set can impact
-#          performance. The default is to use a UNIX-domain socket located at
+#          performance.
+#
+#          The default is to use a UNIX-domain socket located at
 #          /tmp/.newrelic.sock. If you want to use UNIX domain sockets then
-#          this value must begin with a "/". If you set this to an integer
-#          value in the range 1-65534, then this will instruct the agent to
-#          use a normal TCP socket on the port specified. This may be easier
-#          to use if you are using a chroot environment.
-newrelic_agent_daemon_port: "/tmp/.newrelic.sock"
-
-
-# Setting: newrelic.daemon.ssl
-# Type   : boolean
-# Scope  : system
-# Default: true (as of version 3.6)
-# Info   : Sets whether or not communication with New Relic data collectors
-#          should use a secure HTTP connection or not.
-newrelic_agent_daemon_ssl: true
+#          this value must begin with a "/".
+#
+#          On Linux, an abstract socket can be created by prefixing the socket
+#          name with '@'. Support for abstract sockets was added in PHP agent
+#          version 5.2.
+#
+#          If you set this to an integer value in the range 1-65535, then this
+#          will instruct the agent to use a normal TCP socket on the port
+#          specified. This may be easier to use if you are using a chroot
+#          environment.
+#
+#          To connect to a daemon that is running on a different host, set this
+#          value to '<host>:<port>', where '<host>' denotes either a host name
+#          or an IP address and '<port>' denotes a valid port number. IPv6 is
+#          supported.
+#
+#          In order to use a TCP socket with a port in the range 1-1023,
+#          the daemon must be started by the super-user. This is a fundamental
+#          OS limitation and not one imposed by the daemon itself.
+#
+newrelic_agent_daemon_address: /tmp/.newrelic.sock
 
 # Setting: newrelic.daemon.ssl_ca_bundle
 # Type   : string
 # Scope  : system
 # Default: none
 # Info   : Sets the location of a file containing CA certificates in PEM
-#          format. When set, the certificates in this file will be used
-#          to authenticate the New Relic collector servers. If
+#          format. When set, the certificates in this file will be used to
+#          authenticate the New Relic collector servers. If
 #          newrelic.daemon.ssl_ca_path is also set (see below), the
-#          certificates in this file will be searched first, followed by
-#          the certificates contained in the newrelic.daemon.ssl_ca_path
-#          directory. This setting has no effect when newrelic.daemon.ssl
-#          is set to false.
-newrelic_agent_daemon_ssl_ca_bundle: false
+#          certificates in this file will be searched first, followed by the
+#          certificates contained in the newrelic.daemon.ssl_ca_path
+#          directory.
+#
+newrelic_agent_daemon_ssl_ca_bundle: ""
 
 # Setting: newrelic.daemon.ssl_ca_path
 # Type   : string
 # Scope  : system
 # Default: none
-# info   : Sets the location of a directory containing trusted CA certificates
+# Info   : Sets the location of a directory containing trusted CA certificates
 #          in PEM format. When set, the certificates in this directory will be
 #          used to authenticate the New Relic collector servers. If
 #          newrelic.daemon.ssl_ca_bundle is also set (see above), it will be
 #          searched first followed by the certificates contained in
-#          newrelic.daemon.ssl_ca_path. This setting has no effect when
-#          newrelic.daemon.ssl is set to false.
-newrelic_agent_daemon_ssl_ca_path: false
+#          newrelic.daemon.ssl_ca_path.
+#
+newrelic_agent_daemon_ssl_ca_path: ""
 
 # Setting: newrelic.daemon.proxy
 # Type   : string
@@ -201,7 +229,8 @@ newrelic_agent_daemon_ssl_ca_path: false
 #             user@hostname:port
 #             user:password@hostname
 #             user:password@hostname:port
-newrelic_agent_daemon_proxy: false
+#
+newrelic_agent_daemon_proxy: ""
 
 # Setting: newrelic.daemon.pidfile
 # Type   : string
@@ -210,7 +239,8 @@ newrelic_agent_daemon_proxy: false
 # Info   : Sets the name of the file to store the running daemon's process ID
 #          (PID) in. This file is used by the daemon startup and shutdown
 #          script to determine whether or not the daemon is already running.
-newrelic_agent_daemon_pidfile: false
+#
+newrelic_agent_daemon_pidfile: ""
 
 # Setting: newrelic.daemon.location
 # Type   : string
@@ -220,20 +250,21 @@ newrelic_agent_daemon_pidfile: false
 #          Please note that on OpenSolaris where /usr is frequently a read-only
 #          file system, the default daemon location is
 #          /opt/newrelic/bin/newrelic-daemon.
-newrelic_agent_daemon_location: "/usr/bin/newrelic-daemon"
-
+#
+newrelic_agent_daemon_location: /usr/bin/newrelic-daemon
 
 # Setting: newrelic.daemon.collector_host
 # Type   : string
 # Scope  : system
-# Default: collector.newrelic.com
+# Default: none
 # Info   : Sets the host name of the New Relic data collector host to use.
 #          Please note that this is NOT any form of local host. It refers to
 #          the New Relic provided host. There is very little reason to ever
 #          change this from the default except in certain very special
 #          circumstances, and then only on instruction from a New Relic sales
 #          person or support staff member.
-newrelic_agent_daemon_collector_host: "collector.newrelic.com"
+#
+newrelic_agent_daemon_collector_host: ""
 
 # Setting: newrelic.daemon.dont_launch
 # Type   : integer (0, 1, 2 or 3)
@@ -247,7 +278,94 @@ newrelic_agent_daemon_collector_host: "collector.newrelic.com"
 #          1 - non-CLI (i.e Apache / php-fpm) agents can start the daemon
 #          2 - only CLI agents can start the daemon
 #          3 - the agent will never start the daemon
+#
 newrelic_agent_daemon_dont_launch: 0
+
+# Setting: newrelic.daemon.utilization.detect_aws
+# Type   : boolean
+# Scope  : system
+# Default: true
+# Info   : Enable detection of whether the system is running on AWS. This will
+#          create a small amount of network traffic on daemon startup.
+#
+newrelic_agent_daemon_utilization_detect_aws: true
+
+# Setting: newrelic.daemon.utilization.detect_azure
+# Type   : boolean
+# Scope  : system
+# Default: true
+# Info   : Enable detection of whether the system is running on Azure. This will
+#          create a small amount of network traffic on daemon startup.
+#
+newrelic_agent_daemon_utilization_detect_azure: true
+
+# Setting: newrelic.daemon.utilization.detect_gcp
+# Type   : boolean
+# Scope  : system
+# Default: true
+# Info   : Enable detection of whether the system is running on Google Cloud
+#          Platform. This will create a small amount of network traffic on
+#          daemon startup.
+#
+newrelic_agent_daemon_utilization_detect_gcp: true
+
+# Setting: newrelic.daemon.utilization.detect_pcf
+# Type   : boolean
+# Scope  : system
+# Default: true
+# Info   : Enable detection of whether the system is running on Pivotal Cloud
+#          Foundry.
+#
+newrelic_agent_daemon_utilization_detect_pcf: true
+
+# Setting: newrelic.daemon.utilization.detect_docker
+# Type   : boolean
+# Scope  : system
+# Default: true
+# Info   : Enable detection of a system running on Docker. This will be used
+#          to support future features.
+#
+newrelic_agent_daemon_utilization_detect_docker: true
+
+# Setting: newrelic.daemon.app_timeout
+# Type   : time specification string ("5m", "1h20m", etc)
+# Scope  : system
+# Default: 10m
+# Info   : Sets the elapsed time after which an application will be considered
+#          inactive. Inactive applications do not count against the maximum
+#          limit of 250 applications. Allowed units are "ns", "us", "ms", "s",
+#          "m", and "h".
+#
+#          A value of 0 is interpreted as "no timeout". New applications with
+#          this setting count toward the 250 application limit. In addition, with
+#          a 0-value setting, the agent's daemon process cannot release a small
+#          amount of memory per application back to the operating system.
+#
+#          We do not recommend using a 0-value setting except under the guidance
+#          of technical support# instead, for occasional background transactions,
+#          we suggest using a value of twice the interval (so, for an hourly
+#          background job, set the timeout to 2 hours).
+newrelic_agent_daemon_app_timeout: 10m
+
+# Setting: newrelic.daemon.app_connect_timeout
+# Type   : time specification string ("1s", "5m", etc)
+# Scope  : system
+# Default: 0
+# Info   : Sets the maximum time the agent should wait for the daemon
+#          connecting an application.  A value of 0 causes the agent to only
+#          make one attempt at connecting to the daemon.  Allowed units are
+#          "ns", "us", "ms", "s", "m", and "h".
+#
+#          With this timeout set, the agent will not immediately drop a
+#          transaction when the daemon hasn't connected to the backend yet, but
+#          rather grant the daemon time to establish the connection.
+#
+#          If setting a timeout, the recommended value is 10s.  It is
+#          recommended to only set this timeout when instrumenting long-lived
+#          background tasks, as in case of connection problems the agent will
+#          block for the given timeout at every transaction start.
+#
+newrelic_agent_daemon_app_connect_timeout: 0
 
 # Setting: newrelic.error_collector.enabled
 # Type   : boolean
@@ -257,7 +375,63 @@ newrelic_agent_daemon_dont_launch: 0
 #          severe errors per harvest cycle. It is rare to want to disable this.
 #          Please also note that your New Relic subscription level may force
 #          this to be disabled regardless of any value you set for it.
+#
 newrelic_agent_error_collector_enabled: true
+
+# Setting: newrelic.error_collector.ignore_user_exception_handler
+# Type   : boolean
+# Scope  : per-directory
+# Default: false
+# Info   : If enabled, the New Relic error collector will ignore any exceptions
+#          that are handled by an exception handler installed with
+#          set_exception_handler().
+#
+#          If an exception handler has not been installed, this setting will
+#          have no effect, as PHP will turn the uncaught exception into a fatal
+#          error and it will be handled accordingly by the New Relic error
+#          collector.
+#
+newrelic_agent_error_collector_ignore_user_exception_handler: false
+
+# Setting: newrelic.error_collector.ignore_exceptions
+# Type:    string
+# Scope:   per-directory
+# Default: none
+# Info:    A comma separated list of exception classes that the agent should
+#          ignore. When an unhandled exception occurs, the agent will perform
+#          the equivalent of `$exception instanceof Class` for each of the
+#          classes listed. If any of those checks returns true, the agent
+#          will not record an error.
+#
+#          Please note that this setting only applies to uncaught exceptions.
+#          Exceptions recorded using the newrelic_notice_error API are not
+#          subject to filtering.
+#
+newrelic_agent_error_collector_ignore_exceptions: ""
+
+# Setting: newrelic.error_collector.ignore_errors
+# Type:    int or a bitwise expression of PHP-defined error constants
+# Scope:   per-directory
+# Default: none
+# Info:    Sets the error levels that the agent should ignore.
+#
+#          The value for this setting uses similar syntax to the error syntax
+#          for the PHP error reporting.  For example, to configure the PHP Agent
+#          to ignore E_WARNING and E_ERROR level errors, use:
+#
+#          newrelic.error_collector.ignore_errors = E_WARNING | E_ERROR
+#
+#          or
+#
+#          newrelic.error_collector.ignore_errors = 3
+#
+#          The list of constants are available at:
+#          http://php.net/manual/en/errorfunc.constants.php
+#
+#          Please note that this setting does not apply to errors recorded
+#          using the newrelic_notice_error API.
+#
+newrelic_agent_error_collector_ignore_errors: ""
 
 # Setting: newrelic.error_collector.record_database_errors
 # Type   : boolean
@@ -268,6 +442,7 @@ newrelic_agent_error_collector_enabled: true
 #          treated as if they were PHP errors, and thus subject to error
 #          collection. This is only obeyed if the error collector is enabled
 #          above and the account subscription level permits error trapping.
+#
 newrelic_agent_error_collector_record_database_errors: false
 
 # Setting: newrelic.error_collector.prioritize_api_errors
@@ -277,6 +452,7 @@ newrelic_agent_error_collector_record_database_errors: false
 # Info   : If the error collector is enabled and you use the New Relic API to
 #          notice an error, if this is set to true then assign the highest
 #          priority to such errors.
+#
 newrelic_agent_error_collector_prioritize_api_errors: false
 
 # Setting: newrelic.browser_monitoring.auto_instrument
@@ -286,6 +462,7 @@ newrelic_agent_error_collector_prioritize_api_errors: false
 # Info   : Enables or disables automatic real user monitoring ("auto-RUM").
 #          When enabled will cause the agent to insert a header and a footer
 #          in HTML output that will time the actual end-user experience.
+#
 newrelic_agent_browser_monitoring_auto_instrument: true
 
 # Setting: newrelic.transaction_tracer.enabled
@@ -300,6 +477,7 @@ newrelic_agent_browser_monitoring_auto_instrument: true
 #          useful when diagnosing problem spots in your application. Please
 #          note that TT's may be disabled by your account subscription level
 #          regardless of what you set here.
+#
 newrelic_agent_transaction_tracer_enabled: true
 
 # Setting: newrelic.transaction_tracer.threshold
@@ -312,7 +490,8 @@ newrelic_agent_transaction_tracer_enabled: true
 #          word "apdex_f". This last value, "apdex_f", means "4 times apdex_t".
 #          Thus the threshold changes according to your apdex_t setting. This
 #          is the default.
-newrelic_agent_transaction_tracer_threshold: "apdex_f"
+#
+newrelic_agent_transaction_tracer_threshold: apdex_f
 
 # Setting: newrelic.transaction_tracer.detail
 # Type   : integer in the range 0-1
@@ -324,6 +503,7 @@ newrelic_agent_transaction_tracer_threshold: "apdex_f"
 #          (see below). A setting of 1 will trace and time all user functions.
 #
 #          In earlier releases of the agent this was known as "top100".
+#
 newrelic_agent_transaction_tracer_detail: 1
 
 # Setting: newrelic.transaction_tracer.slow_sql
@@ -333,6 +513,7 @@ newrelic_agent_transaction_tracer_detail: 1
 # Info   : Enables or disables the "slow SQL" tracer. When enabled, this will
 #          record the top 10 slowest SQL calls along with a stack trace of
 #          where the call occurred in your code.
+#
 newrelic_agent_transaction_tracer_slow_sql: true
 
 # Setting: newrelic.transaction_tracer.stack_trace_threshold
@@ -341,6 +522,7 @@ newrelic_agent_transaction_tracer_slow_sql: true
 # Default: 500ms
 # Info   : Sets the threshold above which the New Relic agent will record a
 #          stack trace for a transaction trace.
+#
 newrelic_agent_transaction_tracer_stack_trace_threshold: 500
 
 # Setting: newrelic.transaction_tracer.explain_enabled
@@ -350,6 +532,7 @@ newrelic_agent_transaction_tracer_stack_trace_threshold: 500
 # Info   : Enables or disables requesting "explain plans" from MySQL databases
 #          accessed via MySQLi or PDO_MySQL for slow SQL calls. The threshold
 #          for requesting explain plans is defined below.
+#
 newrelic_agent_transaction_tracer_explain_enabled: true
 
 # Setting: newrelic.transaction_tracer.explain_threshold
@@ -362,6 +545,7 @@ newrelic_agent_transaction_tracer_explain_enabled: true
 #          base for slow SQL. This latter feature may not be active yet, please
 #          refer to the agent release notes to see when it becomes available.
 #          Only relevant if explain_enabled above is set to true.
+#
 newrelic_agent_transaction_tracer_explain_threshold: 500
 
 # Setting: newrelic.transaction_tracer.record_sql
@@ -373,7 +557,8 @@ newrelic_agent_transaction_tracer_explain_threshold: 500
 #          USING "raw" IS HIGHLY DISCOURAGED IN PRODUCTION ENVIRONMENTS!
 #          Setting this to "raw" has considerable security implications
 #          as it can expose sensitive and private customer data.
-newrelic_agent_transaction_tracer_record_sql: "obfuscated"
+#
+newrelic_agent_transaction_tracer_record_sql: obfuscated
 
 # Setting: newrelic.transaction_tracer.custom
 # Type   : string
@@ -383,20 +568,43 @@ newrelic_agent_transaction_tracer_record_sql: "obfuscated"
 #          appear in transaction traces. This is only meaningful if you have
 #          set newrelic.transaction_tracer.detail to 0. This can be a comma-
 #          separated list of function or class method names.
-newrelic_agent_transaction_tracer_custom: false
+#
+newrelic_agent_transaction_tracer_custom: ""
+
+# Setting: newrelic.transaction_tracer.internal_functions_enabled
+# Type   : boolean
+# Scope  : system
+# Default: false
+# Info   : Enables or disables support for tracing internal functions (that is,
+#          functions written in C and provided either via the PHP standard
+#          library or PECL extensions). When enabled, internal functions will
+#          appear in transaction traces like functions written in PHP.
+#
+#          Note that enabling this option may result in transactions being up to
+#          5% slower. Enabling this option is only recommended when specifically
+#          debugging performance issues where an internal function is suspected
+#          to be slow.
+#
+newrelic_agent_transaction_tracer_internal_functions_enabled: false
 
 # Setting: newrelic.framework
 # Type   : string
 # Scope  : per-directory
 # Default: empty (auto-detect framework)
-# Info   : Forces the framework to be one of the supported frameworks. This
-#          should only ever be used if the auto-detection fails, in which case
-#          we (support.newrelic.com) would very much like to know about the
-#          detection failure. Must be one of the following values:
-#            cakephp, codeigniter, drupal, drupal8, joomla, kohana, laravel, magento,
-#            mediawiki, symfony, wordpress, yii, zend or no_framework.
+# Info   : Disables automatic framework detection, telling the agent to
+#          attempt to name transactions according to the specified framework.
+#          Specifying "no_framework" will disable framework-related transaction
+#          naming entirely. Please let us know at support.newrelic.com if you
+#          encounter a failure with framework autodetection.
+#
+#          Must be one of the following values:
+#          cakephp, codeigniter, drupal, drupal8, joomla, kohana, laravel,
+#          magento, magento2, mediawiki, silex, slim, symfony1, symfony2,
+#          wordpress, yii, zend, zend2, no_framework
+#
 #          Note that "drupal" covers only Drupal 6 and 7.
-newrelic_agent_framework: false
+#
+newrelic_agent_framework: ""
 
 # Setting: newrelic.webtransaction.name.remove_trailing_path
 # Type   : boolean
@@ -407,13 +615,23 @@ newrelic_agent_framework: false
 #          script name to be stripped from a URL. For example, setting this
 #          would cause the "/xyz/zy" to be stripped from a URL such as
 #          "/path/to/foo.php/xyz/zy".
+#
 newrelic_agent_webtransaction_name_remove_trailing_path: false
 
 # Setting: newrelic.webtransaction.name.functions
 # Type   : string
 # Scope  : per-directory
 # Default: none
-newrelic_agent_webtransaction_name_functions: false
+# Info   : Unless a specific framework such as Drupal or Wordpress has been
+#          detected, transactions are named according to the first script
+#          encountered, such as login.php. However, if you use a dispatcher
+#          file such as index.php this produces less useful data. If you use
+#          a dispatcher to redirect to actions such as "login", "show", "edit"
+#          etc, you can set this to the top level functions for those actions,
+#          and the function names specified here will be used to name the
+#          transaction.
+#
+newrelic_agent_webtransaction_name_functions: ""
 
 # Setting: newrelic.webtransaction.name.files
 # Type   : string
@@ -422,41 +640,45 @@ newrelic_agent_webtransaction_name_functions: false
 # Info   : Same as newrelic.webtransaction.name.functions above but using file
 #          names instead of function names. Accepts standard POSIX regular
 #          expressions.
-newrelic_agent_webtransaction_name_files: false
+#
+newrelic_agent_webtransaction_name_files: ""
 
 # Setting: newrelic.daemon.auditlog
 # Type   : string
 # Scope  : system
 # Default: none
-# info   : Sets the name of a file to record all uncompressed, un-encoded
+# Info   : Sets the name of a file to record all uncompressed, un-encoded
 #          content that is sent from your machine to the New Relic servers.
 #          This includes the full URL for each command along with the payload
 #          delivered with the command. This allows you to satisfy yourself
 #          that the agent is not sending any sensitive data to our servers.
 #          This file must be a different file the the newrelic.daemon.logfile
-#          setting above. If you set it to the same name, then audit logging will be
-#          silently ignored.
-newrelic_agent_daemon_auditlog: false
+#          setting above. If you set it to the same name,
+#          then audit logging will be silently ignored.
+#
+newrelic_agent_daemon_auditlog: ""
 
 # Setting: newrelic.transaction_events.enabled
 # Type   : boolean
 # Scope  : per-directory
 # Default: true
-# info   : Collect and report transaction analytics event data.  Event data
+# Info   : Collect and report transaction analytics event data. Event data
 #          allows the New Relic UI to show additional information such as
-#          histograms.  This setting was formerly called
+#          histograms. This setting was formerly called
 #          newrelic.analytics_events.enabled.
+#
 newrelic_agent_transaction_events_enabled: true
 
 # Setting: newrelic.attributes.enabled
 # Type   : boolean
 # Scope  : per-directory
 # Default: true
-# info   : Enable or disable the collection of attributes generated by the
+# Info   : Enable or disable the collection of attributes generated by the
 #          agent or generated by the user though newrelic_add_custom_parameter.
 #          This setting will take precedence over all other attribute
-#          configuration settings.  For more information, please refer to:
-#          https://docs.newrelic.com/docs/subscriptions/agent-attributes
+#          configuration settings. For more information, please refer to:
+#          https://docs.newrelic.com/docs/agents/manage-apm-agents/agent-metrics/agent-attributes
+#
 newrelic_agent_attributes_enabled: true
 
 # Setting: newrelic.transaction_events.attributes.enabled
@@ -466,22 +688,21 @@ newrelic_agent_attributes_enabled: true
 # Type   : boolean
 # Scope  : per-directory
 # Default: true, except for browser_monitoring.attributes.enabled
-# info   : Control which destinations receive attributes.
+# Info   : Control which destinations receive attributes.
 #          These configuration settings will override the .include and .exclude
-#          settings below.
-#          For more information, please refer to:
-#          https://docs.newrelic.com/docs/subscriptions/agent-attributes
+#          settings below. For more information, please refer to:
+#          https://docs.newrelic.com/docs/agents/manage-apm-agents/agent-metrics/agent-attributes
 #
 #          These settings were formerly called:
 #          newrelic.transaction_tracer.capture_attributes
 #          newrelic.error_collector.capture_attributes
 #          newrelic.analytics_events.capture_attributes
 #          newrelic.browser_monitoring.capture_attributes
+#
 newrelic_agent_transaction_events_attributes_enabled: true
 newrelic_agent_transaction_tracer_attributes_enabled: true
 newrelic_agent_error_collector_attributes_enabled: true
 newrelic_agent_browser_monitoring_attributes_enabled: false
-
 
 # Setting: newrelic.attributes.include
 #          newrelic.attributes.exclude
@@ -501,9 +722,9 @@ newrelic_agent_browser_monitoring_attributes_enabled: false
 # Type   : string
 # Scope  : per-directory
 # Default: none
-# info   : Each attribute has a default set of destinations. For example, the
+# Info   : Each attribute has a default set of destinations. For example, the
 #          'request_uri' attribute's default destinations are errors and
-#          transaction traces.  The 'httpResponseCode' attribute's default
+#          transaction traces. The 'httpResponseCode' attribute's default
 #          destinations are errors, transaction traces, and transaction events.
 #
 #          These configuration options allow complete control over the
@@ -525,38 +746,33 @@ newrelic_agent_browser_monitoring_attributes_enabled: false
 #          newrelic.attributes.exclude = beta,gamma
 #
 #          If one of the values in the comma separated list ends in a '*',
-#          it will match any suffix.  For example, to exclude any attributes
+#          it will match any suffix. For example, to exclude any attributes
 #          which begin with 'psi', the configuration is:
 #          newrelic.attributes.exclude = psi*
 #
 #          For more information, please refer to:
-#          https://docs.newrelic.com/docs/subscriptions/agent-attributes
-
-newrelic_agent_attributes_include: false
-newrelic_agent_attributes_exclude: false
-
-newrelic_agent_transaction_events_attributes_include: false
-newrelic_agent_transaction_events_attributes_exclude: false
-
-newrelic_agent_transaction_tracer_attributes_include: false
-newrelic_agent_transaction_tracer_attributes_exclude: false
-
-newrelic_agent_error_collector_attributes_include: false
-newrelic_agent_error_collector_attributes_exclude: false
-
-newrelic_agent_browser_monitoring_attributes_include: false
-newrelic_agent_browser_monitoring_attributes_exclude: false
+#          https://docs.newrelic.com/docs/agents/manage-apm-agents/agent-metrics/agent-attributes
+#
+newrelic_agent_attributes_include: ""
+newrelic_agent_attributes_exclude: ""
+newrelic_agent_transaction_events_attributes_include: ""
+newrelic_agent_transaction_events_attributes_exclude: ""
+newrelic_agent_transaction_tracer_attributes_include: ""
+newrelic_agent_transaction_tracer_attributes_exclude: ""
+newrelic_agent_error_collector_attributes_include: ""
+newrelic_agent_error_collector_attributes_exclude: ""
+newrelic_agent_browser_monitoring_attributes_include: ""
+newrelic_agent_browser_monitoring_attributes_exclude: ""
 
 # Setting: newrelic.feature_flag
 # Type   : string
 # Scope  : system
 # Default: none
-# Info   : Enables experimental features within the PHP agent. These flags are
-#          used to allow testing of features that may be provided in future
-#          versions of the agent. Please note that we may be unable to provide
-#          support for experimental features.
+# Info   : Enables new and experimental features within the PHP agent. These
+#          flags are used to selectively enable features that are intended to be
+#          enabled by default in later versions of the PHP agent.
 #
-newrelic_agent_feature_flag: false
+newrelic_agent_feature_flag: ""
 
 # Setting: newrelic.custom_insights_events.enabled
 # Type   : boolean
@@ -584,7 +800,7 @@ newrelic_agent_custom_insights_events_enabled: true
 #
 #          E.g., "Server:One#Data Center:Primary"
 #
-newrelic_agent_labels: false
+newrelic_agent_labels: ""
 
 # Setting: newrelic.synthetics.enabled
 # Type   : boolean
@@ -595,3 +811,108 @@ newrelic_agent_labels: false
 #          https://docs.newrelic.com/docs/synthetics/new-relic-synthetics/getting-started/new-relic-synthetics
 #
 newrelic_agent_synthetics_enabled: true
+
+# Setting: newrelic.cross_application_tracer.enabled
+# Type   : boolean
+# Scope  : per-directory
+# Default: true
+# Info   : Enables or disables support for Cross Application Tracing, aka "CAT".
+#
+newrelic_agent_cross_application_tracer_enabled: true
+
+# Setting: newrelic.distributed_tracing_enabled
+# Type   : boolean
+# Scope  : per-directory
+# Default: false
+# Info   : Distributed tracing lets you see the path that a request takes
+#          through your distributed system. Enabling distributed tracing changes
+#          the behavior of some New Relic features, so carefully consult the
+#          transition guide before you enable this feature:
+#          https://docs.newrelic.com/docs/transition-guide-distributed-tracing
+#
+newrelic_agent_distributed_tracing_enabled: false
+
+# Setting: newrelic.span_events_enabled
+# Type   : boolean
+# Scope  : per-directory
+# Default: true
+# Info   : Enables or disables the creation of span events. This requires
+#          Distributed Tracing to be enabled.
+#
+newrelic_agent_span_events_enabled: true
+
+# Setting: newrelic.transaction_tracer.gather_input_queries
+# Type   : boolean
+# Scope  : per-directory
+# Default: true
+# Info   : Enables or disables support for tracing Doctrine DQL with Slow SQL queries.
+#          This requires Slow SQLs to be enabled.
+#
+newrelic_agent_transaction_tracer_gather_input_queries: true
+
+# Setting: newrelic.error_collector.capture_events
+# Type   : boolean
+# Scope  : per-directory
+# Default: true
+# Info   : Enables or disables capturing error events, which are displayed as
+#          Error Analytics in the UI.
+#
+newrelic_agent_error_collector_capture_events: true
+
+# Setting: newrelic.guzzle.enabled
+# Type   : boolean
+# Scope  : per-directory
+# Default: true
+# Info   : Enables or disables support for the Guzzle library.
+#
+newrelic_agent_guzzle_enabled: true
+
+# Setting: newrelic.phpunit_events.enabled
+# Type   : boolean
+# Scope  : per-directory
+# Default: false
+# Info   : Collect and report PHPUnit (https://phpunit.de/) data as custom
+#          Insights events. Test suite summary data are sent as "TestSuite"
+#          events, while individual test cases are sent as "Test" events.
+#          Depending on your events retention policy, enabling this setting may
+#          impact your billing statement.
+#
+#          Please note that exception messages are collected and sent with
+#          events. Additionally, if you use PHPUnit's --disallow-test-output
+#          flag, any offending output from a risky test will also be included.
+#
+newrelic_agent_phpunit_events_enabled: false
+
+# Setting: newrelic.datastore_tracer.instance_reporting.enabled
+# Type   : boolean
+# Scope  : per-directory
+# Default: true
+# Info   : Enables or disables capturing datastore instance information,
+#          specifically host and port_path_or_id. This information is sent as a
+#          metric and as attributes on transaction traces and slow SQL traces.
+#
+newrelic_agent_datastore_tracer_instance_reporting_enabled: true
+
+# Setting: newrelic.datastore_tracer.database_name_reporting.enabled
+# Type   : boolean
+# Scope  : per-directory
+# Default: true
+# Info   : Enables or disables capturing information about database names. This
+#          information is sent as an attribute on transaction traces and slow
+#          SQL traces.
+#
+newrelic_agent_datastore_tracer_database_name_reporting_enabled: true
+
+# Setting: newrelic.security_policies_token
+# Type   : string
+# Scope  : per-directory
+# Default: none
+# Info   : Enables or disables security policies. If security policies are
+#          enabled on your account, you should paste the security policies token
+#          from the New Relic APM UI here.
+#
+#          IMPORTANT: This setting is not compatible with newrelic.high_security.
+#          Only one may be set. If both are set an error will be thrown and the
+#          agent will not connect.
+#
+newrelic_agent_security_policies_token: ""

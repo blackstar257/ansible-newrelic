@@ -1,0 +1,6 @@
+---
+newrelic_php_repo_key_url: https://download.newrelic.com/548C16BF.gpg
+newrelic_php_repo_key_id: 548C16BF
+newrelic_php_deb_repo: "deb http://apt.newrelic.com/debian/ newrelic non-free"
+newrelic_php_package: newrelic-php5
+newrelic_php_yum_repo: https://yum.newrelic.com/pub/newrelic/el5/$basearch
