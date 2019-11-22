@@ -1,7 +1,7 @@
 # Ansible Role: New Relic PHP Agent
 
 [![Ansible Role](https://img.shields.io/badge/role-blackstar257.newrelic-blue.svg)](https://galaxy.ansible.com/blackstar257/newrelic/)
-[![Build Status](https://travis-ci.org/blackstar257/ansible-newrelic.svg?branch=master)](https://travis-ci.org/blackstar257/ansible-newrelic)
+[![Build Status](https://travis-ci.com/blackstar257/ansible-newrelic.svg?branch=master)](https://travis-ci.com/blackstar257/ansible-newrelic)
 
 This ansible role installs and configures the New Relic PHP Agent on RHEL/CentOS, Debian & Ubuntu based systems.
 
