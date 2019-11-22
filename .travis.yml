@@ -4,7 +4,7 @@ services: docker
 
 env:
   global:
-    - ROLE_NAME: newrelic-php
+    - ROLE_NAME: newrelic
   matrix:
     - MOLECULE_DISTRO: centos7
     - MOLECULE_DISTRO: centos6
