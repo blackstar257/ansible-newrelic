@@ -13,4 +13,4 @@
         state: present
 
   roles:
-    - role: blackstar257.newrelic-php
+    - role: blackstar257.newrelic
